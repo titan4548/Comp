@@ -1,0 +1,159 @@
+import subprocess
+import sys
+from tkinter import Tk, Button, Frame, filedialog
+import docx
+import pdfkit
+import img2pdf
+from PIL import Image
+import PyPDF2
+from PyPDF2 import PdfFileReader, PdfFileWriter
+
+
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+try:
+    import PyPDF2
+except ImportError:
+    install('PyPDF2')
+    import PyPDF2
+
+try:
+    import docx
+except ImportError:
+    install('python-docx')
+    import docx
+
+try:
+    import pdfkit
+except ImportError:
+    install('pdfkit')
+    import pdfkit
+
+try:
+    import img2pdf
+except ImportError:
+    install('img2pdf')
+    import img2pdf
+
+try:
+    from PIL import Image
+except ImportError:
+    install('pillow')
+    from PIL import Image
+
+
+class Application(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.pack()
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.pdf_to_word_button = Button(self)
+        self.pdf_to_word_button["text"] = "Convert PDF to Word"
+        self.pdf_to_word_button["command"] = self.convert_pdf_to_word
+        self.pdf_to_word_button.pack(side="top")
+
+        self.word_to_pdf_button = Button(self)
+        self.word_to_pdf_button["text"] = "Convert Word to PDF"
+        self.word_to_pdf_button["command"] = self.convert_word_to_pdf
+        self.word_to_pdf_button.pack(side="top")
+
+        self.pdf_to_image_button = Button(self)
+        self.pdf_to_image_button["text"] = "Convert PDF to Image"
+        self.pdf_to_image_button["command"] = self.convert_pdf_to_image
+        self.pdf_to_image_button.pack(side="top")
+
+        self.image_to_pdf_button = Button(self)
+        self.image_to_pdf_button["text"] = "Convert Image to PDF"
+        self.image_to_pdf_button["command"] = self.convert_image_to_pdf
+        self.image_to_pdf_button.pack(side="top")
+
+        self.jpg_to_jpeg_button = Button(self)
+        self.jpg_to_jpeg_button["text"] = "Convert JPG to JPEG"
+        self.jpg_to_jpeg_button["command"] = self.convert_jpg_to_jpeg
+        self.jpg_to_jpeg_button.pack(side="top")
+
+        self.jpeg_to_jpg_button = Button(self)
+        self.jpeg_to_jpg_button["text"] = "Convert JPEG to JPG"
+        self.jpeg_to_jpg_button["command"] = self.convert_jpeg_to_jpg
+        self.jpeg_to_jpg_button.pack(side="top")
+
+        self.pdf_to_text_button = Button(self)
+        self.pdf_to_text_button["text"] = "Convert PDF to Text"
+        self.pdf_to_text_button["command"] = self.convert_pdf_to_text
+        self.pdf_to_text_button.pack(side="top")
+
+        self.text_to_pdf_button = Button(self)
+        self.text_to_pdf_button["text"] = "Convert Text to PDF"
+        self.text_to_pdf_button["command"] = self.convert_text_to_pdf
+        self.text_to_pdf_button.pack(side="top")
+
+        self.split_pdf_button = Button(self)
+        self.split_pdf_button["text"] = "Split PDF"
+        self.split_pdf_button["command"] = self.split_pdf
+        self.split_pdf_button.pack(side="top")
+
+        self.merge_pdf_button = Button(self)
+        self.merge_pdf_button["text"] = "Merge PDF"
+        self.merge_pdf_button["command"] = self.merge_pdf
+        self.merge_pdf_button.pack(side="top")
+
+        self.quit = Button(self, text="Quit", fg="red", command=self.master.destroy)
+        self.quit.pack(side="bottom")
+
+    def convert_pdf_to_word(self):
+        pdf_file = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
+        word_file = filedialog.asksaveasfilename(filetypes=[("Word Files", "*.docx")])
+    convert_pdf_to_word(pdf_file, word_file)
+
+    def convert_word_to_pdf(self):
+        word_file = filedialog.askopenfilename(filetypes=[("Word Files", "*.docx")])
+        pdf_file = filedialog.asksaveasfilename(filetypes=[("PDF Files", "*.pdf")])
+        convert_word_to_pdf(word_file, pdf_file)
+
+    def convert_image_to_pdf(self):
+        image_file = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
+        pdf_file = filedialog.asksaveasfilename(filetypes=[("PDF Files", "*.pdf")])
+        convert_image_to_pdf(image_file, pdf_file)
+
+    def convert_pdf_to_image(self):
+        pdf_file = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
+        image_file = filedialog.asksaveasfilename(filetypes=[("JPEG Files", "*.jpg"), ("PNG Files", "*.png")])
+        convert_pdf_to_image(pdf_file, image_file)
+
+    def convert_jpg_to_jpeg(self):
+        jpg_file = filedialog.askopenfilename(filetypes=[("JPEG Files", "*.jpg")])
+        jpeg_file = filedialog.asksaveasfilename(filetypes=[("JPEG Files", "*.jpeg")])
+        convert_jpg_to_jpeg(jpg_file, jpeg_file)
+
+    def convert_jpeg_to_jpg(self):
+        jpeg_file = filedialog.askopenfilename(filetypes=[("JPEG Files", "*.jpeg")])
+        jpg_file = filedialog.asksaveasfilename(filetypes=[("JPEG Files", "*.jpg")])
+        convert_jpeg_to_jpg(jpeg_file, jpg_file)
+
+    def convert_pdf_to_text(self):
+        pdf_file = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
+        text_file = filedialog.asksaveasfilename(filetypes=[("Text Files", "*.txt")])
+        convert_pdf_to_text(pdf_file, text_file)
+
+    def convert_text_to_pdf(self):
+        text_file = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
+        pdf_file = filedialog.asksaveasfilename(filetypes=[("PDF Files", "*.pdf")])
+        convert_text_to_pdf(text_file, pdf_file)
+
+    def split_pdf(self):
+        pdf_file = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
+        split_by = input("Enter the number of pages to split by: ")
+        split_pdf(pdf_file, split_by)
+
+    def merge_pdf(self):
+        pdf_files = filedialog.askopenfilenames(filetypes=[("PDF Files", "*.pdf")])
+        pdf_file = filedialog.asksaveasfilename(filetypes=[("PDF Files", "*.pdf")])
+        merge_pdf(pdf_files, pdf_file)
+
+root = Tk()
+app = Application(master=root)
+app.mainloop()
+
